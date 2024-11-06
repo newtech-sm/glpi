@@ -2046,9 +2046,22 @@
             "properties": {
               "image": {
                 "type": "string",
-                "ttile": "Image used for creation (Docker image for instance)",
+                "title": "Image used for creation (Docker image for instance)",
                 "examples": [
                   "redash/redash"
+                ]
+              },
+              "ipaddress": {
+                "title": "Virtualmachine ip",
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "ipv4"
+                  },
+                  {
+                    "type": "string",
+                    "format": "ipv6"
+                  }
                 ]
               },
               "memory": {
@@ -2063,6 +2076,9 @@
                 "examples": [
                   "centos7.0"
                 ]
+              },
+              "operatingsystem": {
+                "$ref": "#/properties/content/properties/operatingsystem"
               },
               "status": {
                 "type": "string",

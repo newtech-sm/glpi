@@ -416,10 +416,10 @@ class Ticket extends CommonITILObject
     /**
      * Get Datas to be added for SLA add
      *
-     * @param $slas_id      SLA id
-     * @param $entities_id  entity ID of the ticket
-     * @param $date         begin date of the ticket
-     * @param $type         type of SLA
+     * @param int    $slas_id      SLA id
+     * @param int    $entities_id  entity ID of the ticket
+     * @param string $date         begin date of the ticket
+     * @param int    $type         type of SLA
      *
      * @since 9.1 (before getDatasToAddSla without type parameter)
      *
@@ -458,10 +458,10 @@ class Ticket extends CommonITILObject
     /**
      * Get Datas to be added for OLA add
      *
-     * @param $olas_id      OLA id
-     * @param $entities_id  entity ID of the ticket
-     * @param $date         begin date of the ticket
-     * @param $type         type of OLA
+     * @param int    $olas_id      OLA id
+     * @param int    $entities_id  entity ID of the ticket
+     * @param string $date         begin date of the ticket
+     * @param int    $type         type of OLA
      *
      * @since 9.2 (before getDatasToAddOla without type parameter)
      *
@@ -2457,7 +2457,7 @@ class Ticket extends CommonITILObject
      *
      * @since 0.83
      *
-     * @param $type itemtype of object to add
+     * @param string $type itemtype of object to add
      *
      * @return boolean
      **/
@@ -2520,7 +2520,17 @@ class Ticket extends CommonITILObject
          || Profile::haveUserRight($user_id, $rightname, ITILFollowup::ADDALLTICKET, $entity_id)
          || (
             Profile::haveUserRight($user_id, $rightname, ITILFollowup::ADDGROUPTICKET, $entity_id)
-            && $this->haveAGroup(CommonITILActor::REQUESTER, $user_groups_ids)
+            && !empty($user_groups_ids)
+            && (
+                (
+                    $this->haveAGroup(CommonITILActor::REQUESTER, $user_groups_ids)
+                    && Profile::haveUserRight($user_id, $rightname, ITILFollowup::ADDMYTICKET, $entity_id)
+                )
+                || (
+                    $this->haveAGroup(CommonITILActor::OBSERVER, $user_groups_ids)
+                    && Profile::haveUserRight($user_id, $rightname, ITILFollowup::ADD_AS_OBSERVER, $entity_id)
+                )
+            )
          )
          || $this->isUser(CommonITILActor::ASSIGN, $user_id)
          || $this->haveAGroup(CommonITILActor::ASSIGN, $user_groups_ids);
@@ -3600,6 +3610,10 @@ JAVASCRIPT;
             $tab = array_merge($tab, Problem::rawSearchOptionsToAdd());
         }
 
+        if (Session::haveRight('change', READ)) {
+            $tab = array_merge($tab, Change::rawSearchOptionsToAdd('Ticket'));
+        }
+
         $tab[] = [
             'id'                 => 'tools',
             'name'               => __('Tools')
@@ -4319,29 +4333,6 @@ JAVASCRIPT;
             }
         }
 
-        // Check category / type validity
-        if ($options['itilcategories_id']) {
-            $cat = new ITILCategory();
-            if ($cat->getFromDB($options['itilcategories_id'])) {
-                switch ($options['type']) {
-                    case self::INCIDENT_TYPE:
-                        if (!$cat->getField('is_incident')) {
-                             $options['itilcategories_id'] = 0;
-                        }
-                        break;
-
-                    case self::DEMAND_TYPE:
-                        if (!$cat->getField('is_request')) {
-                            $options['itilcategories_id'] = 0;
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-        }
-
         // Default check
         if ($ID > 0) {
             $this->check($ID, READ);
@@ -4364,6 +4355,34 @@ JAVASCRIPT;
                 $this->fields["entities_id"] = $first_entity;
                 // Pass to values
                 $options['entities_id']      = $first_entity;
+            }
+        }
+
+        // Check category / type validity
+        if ($options['itilcategories_id']) {
+            $cat = new ITILCategory();
+            if ($cat->getFromDB($options['itilcategories_id'])) {
+                switch ($options['type']) {
+                    case self::INCIDENT_TYPE:
+                        if (!$cat->getField('is_incident')) {
+                            $options['itilcategories_id'] = 0;
+                        }
+                        break;
+
+                    case self::DEMAND_TYPE:
+                        if (!$cat->getField('is_request')) {
+                            $options['itilcategories_id'] = 0;
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+                // Check category / entity validity
+                if (!in_array($cat->fields['entities_id'], getSonsOf('glpi_entities', $options['entities_id']))) {
+                    $options['itilcategories_id'] = 0;
+                    $this->fields['itilcategories_id'] = 0;
+                }
             }
         }
 
@@ -5333,7 +5352,7 @@ JAVASCRIPT;
 
         $criteria = self::getCommonCriteria();
         $criteria['WHERE'] = [
-            'status'       => self::INCOMING,
+            self::getTable() . '.status'       => self::INCOMING,
             'is_deleted'   => 0
         ] + getEntitiesRestrictCriteria(self::getTable());
         $criteria['LIMIT'] = (int)$_SESSION['glpilist_limit'];
@@ -5938,7 +5957,7 @@ JAVASCRIPT;
             $tabentities[0] = $rate;
         }
 
-        foreach ($DB->request('glpi_entities') as $entity) {
+        foreach ($DB->request(Entity::getTable()) as $entity) {
             $rate   = Entity::getUsedConfig('inquest_config', $entity['id'], 'inquest_rate');
 
             if ($rate > 0) {
@@ -6417,6 +6436,10 @@ JAVASCRIPT;
         // Add global validation
         if (!$this->isNewItem() && !isset($input['global_validation'])) {
             $input['global_validation'] = $this->fields['global_validation'];
+        }
+
+        if (!$this->isNewItem() && !isset($input['priority'])) {
+            $input['priority'] = $this->fields['priority'];
         }
     }
 

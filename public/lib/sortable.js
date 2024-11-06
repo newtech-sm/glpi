@@ -1346,6 +1346,8 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 /**
  * ---------------------------------------------------------------------
  *
@@ -1380,6 +1382,8 @@ var __webpack_exports__ = {};
  */
 
 window.sortable = __webpack_require__(30);
+})();
+
 /******/ })()
 ;
 //# sourceMappingURL=sortable.js.map

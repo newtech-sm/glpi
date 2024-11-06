@@ -40,6 +40,7 @@ use Glpi\System\Requirement\DbEngine;
 use Glpi\System\Requirement\DbTimezones;
 use Glpi\System\RequirementsManager;
 use Glpi\Toolbox\Filesystem;
+use Glpi\Toolbox\URL;
 
 define('GLPI_ROOT', realpath('..'));
 
@@ -426,6 +427,7 @@ function step8()
 {
     include_once(GLPI_ROOT . "/inc/dbmysql.class.php");
     include_once(GLPI_CONFIG_DIR . "/config_db.php");
+    /** @var DBmysql $DB */
     $DB = new DB();
 
     if (isset($_POST['send_stats'])) {
@@ -438,6 +440,8 @@ function step8()
     }
 
     $url_base = str_replace("/install/install.php", "", $_SERVER['HTTP_REFERER']);
+    $url_base = URL::sanitizeURL($url_base);
+
     $DB->update(
         'glpi_configs',
         ['value' => $DB->escape($url_base)],
@@ -519,7 +523,7 @@ if (is_writable(GLPI_SESSION_DIR)) {
 Session::start();
 error_reporting(0); // we want to check system before affraid the user.
 
-if (isset($_POST["language"])) {
+if (isset($_POST["language"]) && isset($CFG_GLPI["languages"][$_POST["language"]])) {
     $_SESSION["glpilanguage"] = $_POST["language"];
 }
 

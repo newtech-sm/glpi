@@ -704,7 +704,7 @@ class Document extends CommonDBTM
     public function canViewFile(array $options = [])
     {
 
-       // Check if it is my doc
+        // Check if it is my doc
         if (
             Session::getLoginUserID()
             && ($this->can($this->fields["id"], READ)
@@ -1670,11 +1670,18 @@ class Document extends CommonDBTM
         $p['used']    = [];
         $p['display'] = true;
         $p['hide_if_no_elements'] = false;
+        $p['readonly'] = false;
 
         if (is_array($options) && count($options)) {
             foreach ($options as $key => $val) {
                 $p[$key] = $val;
             }
+        }
+
+        if (isset($p['value']) && ($p['value'] > 0)) {
+            $document = new Document();
+            $document->getFromDB($p['value']);
+            $p['rubdoc'] = $document->fields['documentcategories_id'];
         }
 
         $subwhere = [
@@ -1708,10 +1715,21 @@ class Document extends CommonDBTM
             $values[$data['id']] = $data['name'];
         }
         $rand = mt_rand();
-        $out  = Dropdown::showFromArray('_rubdoc', $values, ['width'               => '30%',
+        $readonly = $p['readonly'];
+        $out = '';
+        $width = '30%';
+        if ($readonly) {
+            $width = '100%';
+            $out .= '<div class="row">';
+            $out .= '<div class="col-xxl-5 p-0">';
+        }
+        $out  .= Dropdown::showFromArray('_rubdoc', $values, [
+            'width'               => $width,
             'rand'                => $rand,
             'display'             => false,
-            'display_emptychoice' => true
+            'display_emptychoice' => true,
+            'value'               => $p['rubdoc'] ?? 0,
+            'readonly'            => $readonly
         ]);
         $field_id = Html::cleanId("dropdown__rubdoc$rand");
 
@@ -1722,6 +1740,10 @@ class Document extends CommonDBTM
             'used'   => $p['used']
         ];
 
+        if ($readonly) {
+            $out .= '</div>';
+            $out .= '<div class="col-xxl-7 p-0">';
+        }
         $out .= Ajax::updateItemOnSelectEvent(
             $field_id,
             "show_" . $p['name'] . $rand,
@@ -1732,13 +1754,33 @@ class Document extends CommonDBTM
         $out .= "<span id='show_" . $p['name'] . "$rand'>";
         $out .= "</span>\n";
 
-        $params['rubdoc'] = 0;
-        $out .= Ajax::updateItem(
-            "show_" . $p['name'] . $rand,
-            $CFG_GLPI["root_doc"] . "/ajax/dropdownRubDocument.php",
-            $params,
-            false
-        );
+        $params['rubdoc'] = $p['rubdoc'] ?? 0;
+        $params['value'] = $p['value'] ?? 0;
+        if ($readonly) {
+            $document = new Document();
+            $doclist = $document->find([]);
+            foreach ($doclist as $doc) {
+                $docvalue[$doc['id']] = $doc['name'];
+            }
+
+            $out .= Dropdown::showFromArray('document', $docvalue ?? [], [
+                'width'               => $width,
+                'rand'                => $rand,
+                'display'             => false,
+                'display_emptychoice' => true,
+                'value'               => $p['value'] ?? 0,
+                'readonly'            => $readonly
+            ]);
+            $out .= '</div>';
+            $out .= '</div>';
+        } else {
+            $out .= Ajax::updateItem(
+                "show_" . $p['name'] . $rand,
+                $CFG_GLPI["root_doc"] . "/ajax/dropdownRubDocument.php",
+                $params,
+                false
+            );
+        }
         if ($p['display']) {
             echo $out;
             return $rand;
@@ -1751,7 +1793,7 @@ class Document extends CommonDBTM
         array &$actions,
         $itemtype,
         $is_deleted = false,
-        CommonDBTM $checkitem = null
+        ?CommonDBTM $checkitem = null
     ) {
         $action_prefix = 'Document_Item' . MassiveAction::CLASS_ACTION_SEPARATOR;
 
@@ -1958,8 +2000,8 @@ class Document extends CommonDBTM
     /**
      * find and load a document which is a duplicate of a file, with respect of blacklisting
      *
-     * @param integer $entity    entity of the document
-     * @param string  $path      path of the searched file
+     * @param integer $entities_id  entity of the document
+     * @param string  $filename     filename of the searched file
      *
      * @return boolean
      */
@@ -1980,7 +2022,7 @@ class Document extends CommonDBTM
     /**
      * It checks if a file exists and is readable
      *
-     * @param string filename The name of the file to check.
+     * @param string $filename The name of the file to check.
      *
      * @return boolean
      */

@@ -8976,7 +8976,7 @@ __webpack_require__.r(__webpack_exports__);
 /*! gettext.js - Guillaume Potier - MIT Licensed */
 var i18n = function (options) {
  options = options || {};
- this && (this.__version = '1.1.1');
+ this && (this.__version = '2.0.0');
 
  // default values that could be overriden in i18n() construct
  var defaults = {
@@ -9067,7 +9067,9 @@ var i18n = function (options) {
      // plural forms list available here http://localization-guide.readthedocs.org/en/latest/l10n/pluralforms.html
      var pf_re = new RegExp('^\\s*nplurals\\s*=\\s*[0-9]+\\s*;\\s*plural\\s*=\\s*(?:\\s|[-\\?\\|&=!<>+*/%:;n0-9_\(\)])+');
 
-     if (!pf_re.test(plural_form))
+     var match = plural_form.match(pf_re);
+
+     if (!match || match[0] !== plural_form)
        throw new Error(strfmt('The plural form "%1" is not valid', plural_form));
 
      // Careful here, this is a hidden eval() equivalent..
@@ -9104,7 +9106,7 @@ var i18n = function (options) {
      if ('undefined' === typeof plural.plural || plural.plural > plural.nplurals || messages.length <= plural.plural)
        plural.plural = 0;
 
-     return strfmt.apply(this, [removeContext(messages[plural.plural]), n].concat(Array.prototype.slice.call(arguments, 3)));
+     return strfmt.apply(this, [removeContext(messages[plural.plural])].concat(Array.prototype.slice.call(arguments, 3)));
    };
 
  return {
@@ -62108,7 +62110,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
 "use strict";
 __webpack_require__.r(__webpack_exports__);

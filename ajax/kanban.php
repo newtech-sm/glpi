@@ -107,7 +107,7 @@ if ($item !== null) {
     }
     if (in_array($action, ['delete_item'])) {
         $maybe_deleted = $item->maybeDeleted();
-        if (($maybe_deleted && !$item::canDelete()) && (!$maybe_deleted && $item::canPurge())) {
+        if (($maybe_deleted && !$item::canDelete()) || (!$maybe_deleted && $item::canPurge())) {
            // Missing rights
             http_response_code(403);
             return;
@@ -190,9 +190,11 @@ if (($_POST['action'] ?? null) === 'update') {
     }
 } else if (($_POST['action'] ?? null) === 'move_item') {
     $checkParams(['card', 'column', 'position', 'kanban']);
-    /** @var Kanban|CommonDBTM $kanban */
     $kanban = getItemForItemtype($_POST['kanban']['itemtype']);
-    $can_move = $kanban->canOrderKanbanCard($_POST['kanban']['items_id']);
+    $can_move = false;
+    if (method_exists($kanban, 'canOrderKanbanCard')) {
+        $can_move = $kanban->canOrderKanbanCard($_POST['kanban']['items_id']);
+    }
     if ($can_move) {
         Item_Kanban::moveCard(
             $_POST['kanban']['itemtype'],
@@ -280,7 +282,7 @@ if (($_POST['action'] ?? null) === 'update') {
     $item->getFromDB($_POST['items_id']);
    // Check if the item can be trashed and if the request isn't forcing deletion (purge)
     $maybe_deleted = $item->maybeDeleted() && !($_REQUEST['force'] ?? false);
-    if (($maybe_deleted && $item->canDeleteItem()) || (!$maybe_deleted && $item->canPurgeItem())) {
+    if (($maybe_deleted && $item->can($_POST['items_id'], DELETE)) || (!$maybe_deleted && $item->can($_POST['items_id'], PURGE))) {
         $item->delete(['id' => $_POST['items_id']], !$maybe_deleted);
     } else {
         http_response_code(403);
@@ -291,7 +293,7 @@ if (($_POST['action'] ?? null) === 'update') {
     $item->getFromDB($_POST['items_id']);
     // Check if the item can be restored
     $maybe_deleted = $item->maybeDeleted();
-    if (($maybe_deleted && $item->canDeleteItem())) {
+    if (($maybe_deleted && $item->can($_POST['items_id'], DELETE))) {
         $item->restore(['id' => $_POST['items_id']]);
     } else {
         http_response_code(403);

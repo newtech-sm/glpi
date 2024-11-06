@@ -721,18 +721,19 @@ class Toolbox
             finfo_close($finfo);
         }
 
-       // don't download picture files, see them inline
-        $attachment = "";
-       // if not begin 'image/'
+        $can_be_inlined = false;
         if (
-            strncmp($mime, 'image/', 6) !== 0
-            && $mime != 'application/pdf'
-            // svg vector of attack, force attachment
-            // see https://github.com/glpi-project/glpi/issues/3873
-            || $mime == 'image/svg+xml'
+            str_starts_with(strtolower($mime), 'image/')
+            && strtolower($mime) !== 'image/svg+xml'
         ) {
-            $attachment = ' attachment;';
+            // images files can be inlined
+            // except for svg (vector of attack, see https://github.com/glpi-project/glpi/issues/3873)
+            $can_be_inlined = true;
+        } elseif (strtolower($mime) === 'application/pdf') {
+            // PDF files can be inlined
+            $can_be_inlined = true;
         }
+        $attachment = $can_be_inlined === false ? ' attachment;' : '';
 
         $etag = md5_file($file);
         $lastModified = filemtime($file);
@@ -974,7 +975,17 @@ class Toolbox
     {
 
        //TRANS: list of unit (o for octet)
-        $bytes = [__('o'), __('Kio'), __('Mio'), __('Gio'), __('Tio'), __('Pio'), __('Eio'), __('Zio'), __('Yio')];
+        $bytes = [
+            _x('size', 'B'),
+            _x('size', 'KiB'),
+            _x('size', 'MiB'),
+            _x('size', 'GiB'),
+            _x('size', 'TiB'),
+            _x('size', 'PiB'),
+            _x('size', 'EiB'),
+            _x('size', 'ZiB'),
+            _x('size', 'YiB'),
+        ];
         foreach ($bytes as $val) {
             if ($size > 1024) {
                 $size = $size / 1024;
@@ -2371,7 +2382,7 @@ class Toolbox
      * @since 9.1
      * @since 9.4.7 Added $database parameter
      **/
-    public static function createSchema($lang = 'en_GB', DBmysql $database = null)
+    public static function createSchema($lang = 'en_GB', ?DBmysql $database = null)
     {
         /** @var \DBmysql $DB */
         global $DB;
@@ -2801,12 +2812,20 @@ class Toolbox
                                 $height = $img_infos[1];
                             }
 
+                            // Avoids creating a link within a link, when the image is already in an <a> tag
+                            $add_link_tmp = $add_link;
+                            if ($add_link) {
+                                $pattern = '/<a[^>]*>[^<>]*?<img[^>]+' . preg_quote($image['tag'], '/') . '[^<]+>[^<>]*?<\/a>/s';
+                                if (preg_match($pattern, $content_text)) {
+                                    $add_link_tmp = false;
+                                }
+                            }
                             // replace image
                             $new_image =  Html::getImageHtmlTagForDocument(
                                 $id,
                                 $width,
                                 $height,
-                                $add_link,
+                                $add_link_tmp,
                                 $object_url_param
                             );
                             if (empty($new_image)) {
@@ -3421,6 +3440,16 @@ HTML;
     {
         $fg_color = "FFFFFF";
         if ($color !== "") {
+            if (preg_match('/rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d\.]+)?\)/', $color, $matches)) {
+                $rgb_color = [
+                    "R" => intval($matches[1]),
+                    "G" => intval($matches[2]),
+                    "B" => intval($matches[3])
+                ];
+                $alpha = isset($matches[4]) ? str_pad(dechex((int)round(floatval($matches[4]) * 255)), 2, '0', STR_PAD_LEFT) : '';
+                $color = Color::rgbToHex($rgb_color) . $alpha;
+            }
+
             $color = str_replace("#", "", $color);
 
            // if transparency present, get only the color part

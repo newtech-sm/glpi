@@ -2335,7 +2335,8 @@ See https://github.com/arnab/jQuery.PrettyTextDiff/
 /******/ 	}
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 /**
  * ---------------------------------------------------------------------
  *
@@ -2379,6 +2380,8 @@ window.DIFF_EQUAL = (__webpack_require__(76).DIFF_EQUAL);
 // PrettyTextDiff jQuery plugin
 __webpack_require__(77);
 
+
+})();
 
 /******/ })()
 ;

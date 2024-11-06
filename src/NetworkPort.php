@@ -1163,8 +1163,12 @@ class NetworkPort extends CommonDBChild
                             $relations_id = 0;
                             $oppositePort = NetworkPort_NetworkPort::getOpposite($netport, $relations_id);
 
-                            if ($oppositePort !== false) {
-                                $device2 = $oppositePort->getItem();
+                            if ($oppositePort === false) {
+                                break;
+                            }
+
+                            $device2 = $oppositePort->getItem();
+                            if ($device2 !== false) {
                                 $output .= $this->getUnmanagedLink($device2, $oppositePort);
 
                                 //equipments connected to hubs
@@ -1277,7 +1281,7 @@ class NetworkPort extends CommonDBChild
                             foreach ($names_iterator as $namerow) {
                                  $netname = new NetworkName();
                                  $netname->getFromDB($namerow['id']);
-                                 $output .= '<br/>' . $netname->getLink(1);
+                                 $output .= '<br/>' . $netname->getLink();
                             }
                             break;
                         default:
@@ -1810,7 +1814,7 @@ class NetworkPort extends CommonDBChild
         /** @var array $CFG_GLPI */
         global $CFG_GLPI;
 
-       // Can exists on template
+        // Can exist on template
         $nb = 0;
         if (NetworkEquipment::canView()) {
             if (in_array($item->getType(), $CFG_GLPI["networkport_types"])) {
@@ -1821,7 +1825,7 @@ class NetworkPort extends CommonDBChild
             }
         }
 
-        if ($item->getType() == 'NetworkPort') {
+        if (get_class($item) == NetworkPort::class) {
             $nbAlias = countElementsInTable(
                 'glpi_networkportaliases',
                 ['networkports_id_alias' => $item->getField('id')]

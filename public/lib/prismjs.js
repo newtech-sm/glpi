@@ -1754,6 +1754,8 @@ Prism.languages.webmanifest = Prism.languages.json;
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 /**
  * ---------------------------------------------------------------------
  *
@@ -1795,6 +1797,8 @@ __webpack_require__(35);
 __webpack_require__(36);
 __webpack_require__(37);
 __webpack_require__(38);
+
+})();
 
 /******/ })()
 ;

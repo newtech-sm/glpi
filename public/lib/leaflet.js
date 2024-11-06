@@ -19856,6 +19856,8 @@ function convertOffset(x, y, degrees) {
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 /**
  * ---------------------------------------------------------------------
  *
@@ -19910,6 +19912,8 @@ __webpack_require__(68);
 __webpack_require__(69);
 __webpack_require__(70);
 __webpack_require__(71);
+
+})();
 
 /******/ })()
 ;

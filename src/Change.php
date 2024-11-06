@@ -568,6 +568,88 @@ class Change extends CommonITILObject
 
         $tab = array_merge($tab, ChangeCost::rawSearchOptionsToAdd());
 
+        $tab[] = [
+            'id'                 => 'ticket',
+            'name'               => Ticket::getTypeName(Session::getPluralNumber())
+        ];
+
+        $tab[] = [
+            'id'                 => '164',
+            'table'              => 'glpi_changes_tickets',
+            'field'              => 'id',
+            'name'               => _x('quantity', 'Number of tickets'),
+            'forcegroupby'       => true,
+            'usehaving'          => true,
+            'datatype'           => 'count',
+            'massiveaction'      => false,
+            'joinparams'         => [
+                'jointype'           => 'child'
+            ]
+        ];
+
+        $tab[] = [
+            'id'                 => 'problem',
+            'name'               => Problem::getTypeName(Session::getPluralNumber())
+        ];
+
+        $tab[] = [
+            'id'                 => '165',
+            'table'              => 'glpi_changes_problems',
+            'field'              => 'id',
+            'name'               => _x('quantity', 'Number of problems'),
+            'forcegroupby'       => true,
+            'usehaving'          => true,
+            'datatype'           => 'count',
+            'massiveaction'      => false,
+            'joinparams'         => [
+                'jointype'           => 'child'
+            ]
+        ];
+
+        return $tab;
+    }
+
+    public static function rawSearchOptionsToAdd(string $itemtype)
+    {
+        $tab = [];
+
+        $tab[] = [
+            'id'                 => 'change',
+            'name'               => self::getTypeName(Session::getPluralNumber())
+        ];
+
+        if ($itemtype == "Ticket") {
+            $tab[] = [
+                'id'                 => '210',
+                'table'              => 'glpi_changes_tickets',
+                'field'              => 'id',
+                'name'               => _x('quantity', 'Number of changes'),
+                'forcegroupby'       => true,
+                'usehaving'          => true,
+                'datatype'           => 'count',
+                'massiveaction'      => false,
+                'joinparams'         => [
+                    'jointype'           => 'child'
+                ]
+            ];
+        }
+
+        if ($itemtype == "Problem") {
+            $tab[] = [
+                'id'                 => '211',
+                'table'              => 'glpi_changes_problems',
+                'field'              => 'id',
+                'name'               => _x('quantity', 'Number of changes'),
+                'forcegroupby'       => true,
+                'usehaving'          => true,
+                'datatype'           => 'count',
+                'massiveaction'      => false,
+                'joinparams'         => [
+                    'jointype'           => 'child'
+                ]
+            ];
+        }
+
         return $tab;
     }
 
@@ -903,7 +985,7 @@ class Change extends CommonITILObject
             'name'                       => '',
             'itilcategories_id'          => 0,
             'actiontime'                 => 0,
-            'date'                      => 'NULL',
+            'date'                       => 'NULL',
             '_add_validation'            => 0,
             'users_id_validate'          => [],
             '_tasktemplates_id'          => [],
@@ -913,7 +995,11 @@ class Change extends CommonITILObject
             'backoutplancontent'         => '',
             'checklistcontent'           => '',
             'items_id'                   => 0,
-            '_actors'                     => [],
+            '_actors'                    => [],
+            'status'                     => self::INCOMING,
+            'time_to_resolve'            => 'NULL',
+            'itemtype'                   => '',
+            'locations_id'               => 0,
         ];
     }
 

@@ -1170,13 +1170,15 @@ HTML;
                 }
             }
 
-            // include more js libs for dashboard case
-            $jslibs = array_merge($jslibs, [
-                'gridstack',
-                'charts',
-                'clipboard',
-                'sortable'
-            ]);
+            if (in_array('dashboard', $jslibs)) {
+                // include more js libs for dashboard case
+                $jslibs = array_merge($jslibs, [
+                    'gridstack',
+                    'charts',
+                    'clipboard',
+                    'sortable'
+                ]);
+            }
 
             if (in_array('planning', $jslibs)) {
                 Html::requireJs('planning');
@@ -1473,6 +1475,7 @@ HTML;
                                 foreach ($val as $k => $object) {
                                     $menu[$key]['types'][] = $object;
                                     if (empty($menu[$key]['icon']) && method_exists($object, 'getIcon')) {
+                                        /** @var class-string $object */
                                         $menu[$key]['icon']    = $object::getIcon();
                                     }
                                 }
@@ -2018,10 +2021,17 @@ HTML;
         $user = Session::getLoginUserID() !== false ? User::getById(Session::getLoginUserID()) : null;
 
         $platform = "";
-        if (!defined('TU_USER')) {
-            $parser = new UserAgentParser();
+        $parser = new UserAgentParser();
+        try {
             $ua = $parser->parse();
             $platform = $ua->platform();
+        } catch (InvalidArgumentException $e) {
+            // To avoid log overload, we suppress the InvalidArgumentException error.
+            // Some non-standard clients, such as bots or simplified HTTP services,
+            // don’t always send the User-Agent header,
+            // and privacy-focused browsers or extensions may also block it.
+            // Additionally, server configurations like proxies or firewalls
+            // may remove this header for security reasons.
         }
 
         $help_url_key = Session::getCurrentInterface() === 'central'
@@ -2105,7 +2115,7 @@ HTML;
      *
      * @param string  $title    title of the page
      * @param string  $url      not used anymore
-     * @param boolean $iframed  indicate if page loaded in iframe - css target
+     * @param boolean $in_modal  indicate if page loaded in iframe - css target
      * @param string  $sector    sector in which the page displayed is (default 'none')
      * @param string  $item      item corresponding to the page displayed (default 'none')
      * @param string  $option    option corresponding to the page displayed (default '')
@@ -2847,6 +2857,7 @@ HTML;
          ? "mode: 'range',"
          : "";
 
+        $name = Html::cleanInputText($name);
         $output = <<<HTML
       <div class="input-group flex-grow-1 flatpickr d-flex align-items-center" id="showdate{$p['rand']}">
          <input type="text" name="{$name}" size="{$p['size']}"
@@ -2868,9 +2879,7 @@ HTML;
          ? "mode: 'multiple',"
          : "";
 
-        $value = is_array($p['value'])
-         ? json_encode($p['value'])
-         : "'{$p['value']}'";
+        $value = json_encode($p['value']);
 
         $locale = Locale::parseLocale($_SESSION['glpilanguage']);
         $js = <<<JS
@@ -3037,9 +3046,11 @@ JS;
          ? "<i class='input-group-text fas fa-times-circle fa-lg pointer' data-clear role='button' title='" . __s('Clear') . "'></i>"
          : "";
 
+        $name = Html::cleanInputText($name);
+        $value = Html::cleanInputText($p['value']);
         $output = <<<HTML
          <div class="input-group flex-grow-1 flatpickr" id="showdate{$p['rand']}">
-            <input type="text" name="{$name}" value="{$p['value']}"
+            <input type="text" name="{$name}" value="{$value}"
                    {$required} {$disabled} data-input class="form-control rounded-start ps-2">
             <i class="input-group-text far fa-calendar-alt fa-lg pointer" data-toggle="" role="button"></i>
             $clear
@@ -3048,11 +3059,11 @@ HTML;
 
         $date_format = Toolbox::getDateFormat('js') . " H:i:S";
 
-        $min_attr = !empty($p['min'])
-         ? "minDate: '{$p['min']}',"
+        $min_attr = !empty($p['mindate'])
+         ? "minDate: '{$p['mindate']}',"
          : "";
-        $max_attr = !empty($p['max'])
-         ? "maxDate: '{$p['max']}',"
+        $max_attr = !empty($p['maxdate'])
+         ? "maxDate: '{$p['maxdate']}',"
          : "";
 
         $locale = Locale::parseLocale($_SESSION['glpilanguage']);
@@ -4030,7 +4041,8 @@ JS;
     /**
      * Activate autocompletion for user templates in rich text editor.
      *
-     * @param string $editor_id
+     * @param string $selector
+     * @param array $values
      *
      * @return void
      *
@@ -4058,7 +4070,7 @@ JAVASCRIPT
     /**
      * Insert an html link to the twig template variables documentation page
      *
-     * @param string $preset_traget Preset of parameters for which to show documentation (key)
+     * @param string $preset_target Preset of parameters for which to show documentation (key)
      * @param string|null $link_id  Useful if you need to interract with the link through client side code
      */
     public static function addTemplateDocumentationLink(
@@ -4090,7 +4102,7 @@ JAVASCRIPT
      * Useful if you don't have access to the form where you want to put this link at
      *
      * @param string $selector JQuery selector to find the target textarea
-     * @param string $preset_traget   Preset of parameters for which to show documentation (key)
+     * @param string $preset_target   Preset of parameters for which to show documentation (key)
      */
     public static function addTemplateDocumentationLinkJS(
         string $selector,
@@ -5201,9 +5213,8 @@ JAVASCRIPT
      *
      * @since 9.3
      *
-     * @param string $ame      Name of the field
+     * @param string $name     Name of the field
      * @param array  $values   Array of the options
-     * @param mixed  $selected Current selected option
      * @param array  $options  Array of HTML attributes
      *
      * @return string
@@ -6287,7 +6298,7 @@ HTML;
         }
         $message .= "Copyright (C) 2015-" . GLPI_YEAR . " Teclib' and contributors" .
          "</a>";
-        return "<a href=\"https://newtechgroup.com/\" title=\"Newtech Group\" class=\"copyright\">Newtech Group</a>";
+        return $message;
     }
 
     /**
@@ -6771,7 +6782,7 @@ HTML;
      * @param  string  $hexcolor the color, you can pass hex color (prefixed or not by #)
      *                           You can also pass a short css color (ex #FFF)
      * @param  boolean $bw       default true, should we invert the color or return black/white function of the input color
-     * @param  boolean $sb       default true, should we soft the black/white to a dark/light grey
+     * @param  boolean $sbw      default true, should we soft the black/white to a dark/light grey
      * @return string            the inverted color prefixed by #
      */
     public static function getInvertedColor($hexcolor = "", $bw = true, $sbw = true)
@@ -6781,9 +6792,9 @@ HTML;
         }
        // convert 3-digit hex to 6-digits.
         if (strlen($hexcolor) == 3) {
-            $hexcolor = $hexcolor[0] + $hexcolor[0]
-                   + $hexcolor[1] + $hexcolor[1]
-                   + $hexcolor[2] + $hexcolor[2];
+            $hexcolor = $hexcolor[0] . $hexcolor[0]
+                   . $hexcolor[1] . $hexcolor[1]
+                   . $hexcolor[2] . $hexcolor[2];
         }
         if (strlen($hexcolor) != 6) {
             throw new \Exception('Invalid HEX color.');
@@ -6809,9 +6820,9 @@ HTML;
 
        // pad each with zeros and return
         return "#"
-         + str_pad($r, 2, '0', STR_PAD_LEFT)
-         + str_pad($g, 2, '0', STR_PAD_LEFT)
-         + str_pad($b, 2, '0', STR_PAD_LEFT);
+         . str_pad($r, 2, '0', STR_PAD_LEFT)
+         . str_pad($g, 2, '0', STR_PAD_LEFT)
+         . str_pad($b, 2, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -7136,5 +7147,16 @@ CSS;
         }
 
         return "";
+    }
+
+    /**
+     * Sanitize a input name to prevent XSS.
+     *
+     * @param string $name
+     * @return string
+     */
+    public static function sanitizeInputName(string $name): string
+    {
+        return preg_replace('/[^a-z0-9_\[\]]/i', '', $name);
     }
 }

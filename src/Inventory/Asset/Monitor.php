@@ -44,8 +44,6 @@ use RuleImportAssetCollection;
 
 class Monitor extends InventoryAsset
 {
-    private $import_monitor_on_partial_sn = false;
-
     public function prepare(): array
     {
         $serials = [];
@@ -200,7 +198,7 @@ class Monitor extends InventoryAsset
                 $this->addOrMoveItem($input);
             }
         } else {
-           // Check all fields from source:
+            // Check all fields from source:
             foreach ($monitors as $key => $monitors_id) {
                 foreach ($db_monitors as $keydb => $monits_id) {
                     if ($monitors_id == $monits_id) {
@@ -211,11 +209,9 @@ class Monitor extends InventoryAsset
                 }
             }
 
-           // Delete monitors links in DB
-            if (!$this->main_asset || !$this->main_asset->isPartial()) {
-                foreach ($db_monitors as $idtmp => $monits_id) {
-                    $computer_Item->delete(['id' => $idtmp], true);
-                }
+            // Delete monitors links in DB
+            foreach ($db_monitors as $idtmp => $monits_id) {
+                $computer_Item->delete(['id' => $idtmp], true);
             }
 
             foreach ($monitors as $key => $monitors_id) {
@@ -232,7 +228,6 @@ class Monitor extends InventoryAsset
 
     public function checkConf(Conf $conf): bool
     {
-        $this->import_monitor_on_partial_sn = $conf->import_monitor_on_partial_sn;
         return $conf->import_monitor == 1;
     }
 

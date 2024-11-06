@@ -37360,9 +37360,6 @@ input.submit:focus:not([disabled]):not(.disabled), .vsubmit:focus:not([disabled]
   width: 100%;
   padding: 5px;
 }
-#page .faqadd_entries tr, .qtip .faqadd_entries tr, .modal .modal-body .faqadd_entries tr {
-  display: block;
-}
 #page .boxnote, .qtip .boxnote, .modal .modal-body .boxnote {
   margin: 0 auto;
   width: 950px;
@@ -38226,6 +38223,7 @@ div.banner-need-update {
 #planning_container #planning .fc-event {
   font-weight: normal;
   display: block;
+  min-height: 13px;
 }
 #planning_container #planning .fc-event .fc-content {
   margin-right: 8px;

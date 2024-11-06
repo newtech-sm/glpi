@@ -3,7 +3,31 @@
 The present file will list all changes made to the project; according to the
 [Keep a Changelog](http://keepachangelog.com/) project.
 
-## [10.0.16] unreleased
+## [10.0.17] 2024-11-06
+
+### Added
+
+### Changed
+- Searching IDs in dropdowns now matches the beginning of the ID instead of anywhere in the ID.
+
+### Deprecated
+
+### Removed
+
+### API changes
+
+#### Added
+
+- `NotificationTarget::canNotificationContentBeDisclosed()` method that can be overriden to indicates whether a notification contents should be undisclosed.
+
+#### Changes
+
+#### Deprecated
+
+#### Removed
+
+
+## [10.0.16] 2024-07-03
 
 ### Added
 

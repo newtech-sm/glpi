@@ -203,9 +203,6 @@ abstract class LevelAgreementLevel extends RuleTicket
         return parent::getSpecificValueToSelect($field, $name, $values, $options);
     }
 
-
-
-
     public function getActions()
     {
 
@@ -389,7 +386,10 @@ abstract class LevelAgreementLevel extends RuleTicket
             $nb = 0;
             switch ($item->getType()) {
                 case static::$parentclass:
-                    if ($_SESSION['glpishow_count_on_tabs']) {
+                    if (
+                        $_SESSION['glpishow_count_on_tabs']
+                        && ($item instanceof CommonDBTM)
+                    ) {
                         $nb =  countElementsInTable(static::getTable(), [static::$fkparent => $item->getID()]);
                     }
                     return self::createTabEntry(static::getTypeName(Session::getPluralNumber()), $nb);
@@ -403,6 +403,7 @@ abstract class LevelAgreementLevel extends RuleTicket
     {
 
         if ($item->getType() == static::$parentclass) {
+            /** @var OlaLevel|SlaLevel $level */
             $level = new static();
             $level->showForParent($item);
         }
@@ -419,5 +420,18 @@ abstract class LevelAgreementLevel extends RuleTicket
     {
         // No definition time here so we must guess the unit from the raw seconds value
         return abs($this->fields['execution_time']) >= DAY_TIMESTAMP;
+    }
+
+    public function getSpecificMassiveActions($checkitem = null)
+    {
+        $actions = parent::getSpecificMassiveActions($checkitem);
+
+        /**
+         * Remove the export action
+         * A levelAgreementLevel can not be exported
+         */
+        unset($actions[Rule::class . MassiveAction::CLASS_ACTION_SEPARATOR . 'export']);
+
+        return $actions;
     }
 }

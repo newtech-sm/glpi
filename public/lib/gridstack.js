@@ -4845,6 +4845,8 @@ __webpack_require__.r(__webpack_exports__);
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var gridstack__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(88);
 /* harmony import */ var gridstack__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(gridstack__WEBPACK_IMPORTED_MODULE_0__);
@@ -4886,6 +4888,8 @@ __webpack_require__.r(__webpack_exports__);
 window.GridStack = gridstack__WEBPACK_IMPORTED_MODULE_0__.GridStack;
 __webpack_require__(93);
 __webpack_require__(103);
+
+})();
 
 /******/ })()
 ;

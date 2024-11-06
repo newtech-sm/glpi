@@ -34,6 +34,7 @@
  */
 
 use Glpi\Event;
+use Glpi\Toolbox\ArrayNormalizer;
 
 /**
  * Profile class
@@ -149,7 +150,7 @@ class Profile extends CommonDBTM
     {
 
         if (!$withtemplate) {
-            switch ($item->getType()) {
+            switch (get_class($item)) {
                 case __CLASS__:
                     if ($item->fields['interface'] == 'helpdesk') {
                         $ong[3] = __('Assistance'); // Helpdesk
@@ -175,7 +176,7 @@ class Profile extends CommonDBTM
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
 
-        if ($item->getType() == __CLASS__) {
+        if (get_class($item) == __CLASS__) {
             $item->cleanProfile();
             switch ($tabnum) {
                 case 2:
@@ -319,8 +320,9 @@ class Profile extends CommonDBTM
             if ((!isset($input["helpdesk_item_type"])) || (!is_array($input["helpdesk_item_type"]))) {
                 $input["helpdesk_item_type"] = [];
             }
-           // Linear_HIT: $input["helpdesk_item_type"] = array_keys($input["helpdesk_item_type"]
-            $input["helpdesk_item_type"] = exportArrayToDB($input["helpdesk_item_type"]);
+            $input["helpdesk_item_type"] = exportArrayToDB(
+                ArrayNormalizer::normalizeValues($input["helpdesk_item_type"], 'strval')
+            );
         }
 
         if (isset($input["_managed_domainrecordtypes"])) {
@@ -331,7 +333,9 @@ class Profile extends CommonDBTM
                //when all selected, keep only all
                 $input['managed_domainrecordtypes'] = [-1];
             }
-            $input["managed_domainrecordtypes"] = exportArrayToDB($input["managed_domainrecordtypes"]);
+            $input["managed_domainrecordtypes"] = exportArrayToDB(
+                ArrayNormalizer::normalizeValues($input["managed_domainrecordtypes"], 'intval')
+            );
         }
 
         if (isset($input['helpdesk_hardware']) && is_array($input['helpdesk_hardware'])) {
@@ -506,11 +510,15 @@ class Profile extends CommonDBTM
     {
 
         if (isset($input["helpdesk_item_type"])) {
-            $input["helpdesk_item_type"] = exportArrayToDB($input["helpdesk_item_type"]);
+            $input["helpdesk_item_type"] = exportArrayToDB(
+                ArrayNormalizer::normalizeValues($input["helpdesk_item_type"], 'strval')
+            );
         }
 
         if (isset($input["managed_domainrecordtypes"])) {
-            $input["managed_domainrecordtypes"] = exportArrayToDB($input["managed_domainrecordtypes"]);
+            $input["managed_domainrecordtypes"] = exportArrayToDB(
+                ArrayNormalizer::normalizeValues($input["managed_domainrecordtypes"], 'intval')
+            );
         }
 
         $this->profileRight = [];
@@ -820,7 +828,7 @@ class Profile extends CommonDBTM
      * @param string $form The tab/form name
      * @phpstan-param non-empty-string $form
      * @param string $interface The interface name
-     * @phpstan-param 'central'|'helpdesk' $interface
+     * @phpstan-param 'all'|'central'|'helpdesk' $interface
      * @return array
      * @phpstan-type RightDefinition = array{rights: array{}, label: string, field: string, scope: string}
      * @phpstan-return $interface == 'all' ? array<string, array<string, array<string, RightDefinition[]>>> : ($form == 'all' ? array<string, array<string, RightDefinition[]>> : ($group == 'all' ? array<string, RightDefinition[]> : RightDefinition[]))
@@ -3759,7 +3767,7 @@ class Profile extends CommonDBTM
         /** @var \DBmysql $DB */
         global $DB;
 
-        foreach ($DB->request('glpi_profiles', ['is_default' => 1]) as $data) {
+        foreach ($DB->request(self::getTable(), ['is_default' => 1]) as $data) {
             return $data['id'];
         }
         return 0;

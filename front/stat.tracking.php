@@ -70,7 +70,7 @@ if (empty($_GET["value2"])) {
 
 //sanitize dates
 foreach (['date1', 'date2'] as $key) {
-    if (array_key_exists($key, $_GET) && preg_match('/\d{4}-\d{2}-\d{2}/', (string)$_GET[$key]) !== 1) {
+    if (array_key_exists($key, $_GET) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$_GET[$key]) !== 1) {
         unset($_GET[$key]);
     }
 }
@@ -164,7 +164,7 @@ echo "<input type='submit' class='btn btn-primary' name='submit' value=\"" . __s
 echo "<tr class='tab_bg_2'><td class='right'>" . __('End date') . "</td><td>";
 Html::showDateField("date2", ['value' => $_GET["date2"]]);
 echo "</td><td class='center'>";
-echo "<input type='hidden' name='value2' value='" . $_GET["value2"] . "'>";
+echo "<input type='hidden' name='value2' value='" . Html::cleanInputText($_GET["value2"]) . "'>";
 Dropdown::showYesNo('showgraph', $_GET['showgraph']);
 echo "</td></tr>";
 echo "</table>";

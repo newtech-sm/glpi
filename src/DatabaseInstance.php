@@ -366,7 +366,7 @@ class DatabaseInstance extends CommonDBTM
             'id'               => '5',
             'table'            => DatabaseInstance::getTable(),
             'field'            => 'items_id',
-            'name'             => _n('Associated item', 'Associated items', 2),
+            'name'             => _n('Item', 'Items', 1),
             'nosearch'         => true,
             'massiveaction'    => false,
             'forcegroupby'     => true,
@@ -382,6 +382,33 @@ class DatabaseInstance extends CommonDBTM
             'field'              => 'version',
             'name'               => _n('Version', 'Versions', 1),
             'datatype'           => 'text'
+        ];
+
+        $tab[] = [
+            'id'                 => '7',
+            'table'              => DatabaseInstance::getTable(),
+            'field'              => 'is_active',
+            'name'               => __('Is active'),
+            'massiveaction'      => false,
+            'datatype'           => 'bool'
+        ];
+
+        $tab[] = [
+            'id'                 => '253',
+            'table'              => DatabaseInstance::getTable(),
+            'field'              => 'path',
+            'name'               => __('Path'),
+            'datatype'           => 'text'
+        ];
+
+        $tab[] = [
+            'id'                 => '8',
+            'table'              => DatabaseInstance::getTable(),
+            'field'              => 'itemtype',
+            'name'               => __('Item type'),
+            'massiveaction'      => false,
+            'datatype'           => 'itemtypename',
+            'types'              => self::getTypes()
         ];
 
         $tab[] = [
@@ -539,12 +566,12 @@ class DatabaseInstance extends CommonDBTM
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
-        if (!self::canView()) {
-            return '';
-        }
-
-        $nb = 0;
-        if (in_array($item->getType(), self::getTypes(true))) {
+        if (
+            ($item instanceof CommonDBTM)
+            && self::canView()
+            && in_array($item->getType(), self::getTypes(true))
+        ) {
+            $nb = 0;
             if ($_SESSION['glpishow_count_on_tabs']) {
                 $nb = countElementsInTable(self::getTable(), ['itemtype' => $item->getType(), 'items_id' => $item->fields['id']]);
             }

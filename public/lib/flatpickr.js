@@ -2776,6 +2776,8 @@ __webpack_require__.r(__webpack_exports__);
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 /**
  * ---------------------------------------------------------------------
  *
@@ -2811,6 +2813,8 @@ var __webpack_exports__ = {};
 
 const flatpickr = __webpack_require__(133);
 __webpack_require__(134);
+
+})();
 
 /******/ })()
 ;

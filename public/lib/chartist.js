@@ -5206,6 +5206,8 @@ __webpack_require__.r(__webpack_exports__);
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 /**
  * ---------------------------------------------------------------------
  *
@@ -5249,6 +5251,8 @@ __webpack_require__(478);
 __webpack_require__(479);
 __webpack_require__(480);
 __webpack_require__(481);
+
+})();
 
 /******/ })()
 ;

@@ -103,7 +103,6 @@ var GLPIPlanning  = {
             nowIndicator: true,
             now: options.now,// as we set the calendar as UTC, we need to reprecise the current datetime
             listDayAltFormat: false,
-            agendaEventMinHeight: 13,
             header: options.header,
             hiddenDays: hidden_days,
             locale: loadedLocales.length === 1 ? loadedLocales[0] : undefined,
@@ -849,6 +848,7 @@ var GLPIPlanning  = {
         var event      = info.event;
         var revertFunc = info.revert;
         var extProps   = event.extendedProps;
+        var recurringDef = event._def.recurringDef;
 
         var old_itemtype = null;
         var old_items_id = null;
@@ -871,6 +871,28 @@ var GLPIPlanning  = {
 
         var start = event.start;
         var end   = event.end;
+
+        if (
+            !move_instance
+            && recurringDef
+            && recurringDef.typeData
+            && recurringDef.typeData.origOptions.dtstart !== start
+        ) {
+            let startDate = new Date(start);
+            let dtstart = recurringDef.typeData._dtstart || recurringDef.typeData.origOptions.dtstart;
+            let originDate = new Date(dtstart);
+
+            let hours = startDate.getHours();
+            let minutes = startDate.getMinutes();
+
+            originDate.setHours(hours, minutes);
+
+            start = originDate;
+
+            let duration = end - event.start;
+            end = new Date(start.getTime() + duration);
+        }
+
         if (typeof end === 'undefined' || end === null) {
             end = new Date(start.getTime());
             if (event.allDay) {

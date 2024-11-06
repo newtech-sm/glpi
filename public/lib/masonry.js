@@ -2365,6 +2365,8 @@ return Outlayer;
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 /**
  * ---------------------------------------------------------------------
  *
@@ -2399,6 +2401,8 @@ var __webpack_exports__ = {};
  */
 
 window.Masonry = __webpack_require__(48);
+
+})();
 
 /******/ })()
 ;

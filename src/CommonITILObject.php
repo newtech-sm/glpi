@@ -977,7 +977,16 @@ abstract class CommonITILObject extends CommonDBTM
          || (
             Session::haveRight('followup', ITILFollowup::ADDGROUPTICKET)
             && isset($_SESSION["glpigroups"])
-            && $this->haveAGroup(CommonITILActor::REQUESTER, $_SESSION['glpigroups'])
+            && (
+                (
+                    $this->haveAGroup(CommonITILActor::REQUESTER, $_SESSION['glpigroups'])
+                    && Session::haveRight("followup", ITILFollowup::ADDMYTICKET)
+                )
+                || (
+                    $this->haveAGroup(CommonITILActor::OBSERVER, $_SESSION['glpigroups'])
+                    && Session::haveRight("followup", ITILFollowup::ADD_AS_OBSERVER)
+                )
+            )
          )
          || $this->isUser(CommonITILActor::ASSIGN, Session::getLoginUserID())
          || (
@@ -2817,25 +2826,33 @@ abstract class CommonITILObject extends CommonDBTM
             $input["date"] = $_SESSION["glpi_currenttime"];
         }
 
-        if (isset($input["status"]) && in_array($input["status"], $this->getSolvedStatusArray())) {
-            if (isset($input["date"])) {
+        if (in_array($input["status"], $this->getSolvedStatusArray())) {
+            if (
+                !isset($input["solvedate"])
+                || $input["solvedate"] < $input["date"]
+            ) {
                 $input["solvedate"] = $input["date"];
-            } else {
-                $input["solvedate"] = $_SESSION["glpi_currenttime"];
             }
         }
 
-        if (isset($input["status"]) && in_array($input["status"], $this->getClosedStatusArray())) {
-            if (isset($input["date"])) {
+        if (in_array($input["status"], $this->getClosedStatusArray())) {
+            if (
+                !isset($input["closedate"])
+                || $input["closedate"] < $input["date"]
+            ) {
                 $input["closedate"] = $input["date"];
-            } else {
-                $input["closedate"] = $_SESSION["glpi_currenttime"];
             }
-            $input['solvedate'] = $input["closedate"];
+            if (
+                !isset($input["solvedate"])
+                || $input["solvedate"] < $input["date"]
+                || $input["solvedate"] > $input["closedate"]
+            ) {
+                $input['solvedate'] = $input["closedate"];
+            }
         }
 
-       // Set begin waiting time if status is waiting
-        if (isset($input["status"]) && ($input["status"] == self::WAITING)) {
+        // Set begin waiting time if status is waiting
+        if ($input["status"] == self::WAITING) {
             $input['begin_waiting_date'] = $input['date'];
         }
 
@@ -7045,6 +7062,7 @@ abstract class CommonITILObject extends CommonDBTM
                     'OR' => [
                         'is_private' => 0,
                         'users_id'   => Session::getCurrentInterface() === "central" ? (int)Session::getLoginUserID() : 0,
+                        'users_id_tech' => Session::getCurrentInterface() === "central" ? (int)Session::getLoginUserID() : 0,
                     ]
                 ];
             }
@@ -7899,7 +7917,7 @@ abstract class CommonITILObject extends CommonDBTM
     public function getAssociatedDocumentsCriteria($bypass_rights = false): array
     {
         $task_class = $this->getType() . 'Task';
-        /** @var DBMysql $DB */
+        /** @var DBmysql $DB */
         global $DB; // Used to get subquery results - better performance
 
         $or_crits = [

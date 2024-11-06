@@ -42,6 +42,8 @@ use Glpi\Toolbox\Sanitizer;
  **/
 class KnowbaseItem extends CommonDBVisible implements ExtraVisibilityCriteria
 {
+    use Glpi\Features\Clonable;
+
    // From CommonDBTM
     public $dohistory    = true;
 
@@ -54,7 +56,19 @@ class KnowbaseItem extends CommonDBVisible implements ExtraVisibilityCriteria
 
     public static $rightname   = 'knowbase';
 
-
+    public function getCloneRelations(): array
+    {
+        return [
+            Entity_KnowbaseItem::class,
+            Group_KnowbaseItem::class,
+            KnowbaseItem_Profile::class,
+            KnowbaseItem_User::class,
+            Document_Item::class,
+            Infocom::class,
+            KnowbaseItem_Item::class,
+            KnowbaseItemTranslation::class,
+        ];
+    }
     public static function getTypeName($nb = 0)
     {
         return __('Knowledge base');
@@ -256,6 +270,7 @@ class KnowbaseItem extends CommonDBVisible implements ExtraVisibilityCriteria
             $nb = 0;
             switch ($item->getType()) {
                 case __CLASS__:
+                    /** @var KnowbaseItem $item */
                     $ong[1] = $this->getTypeName(1);
                     if ($item->canUpdateItem()) {
                         if ($_SESSION['glpishow_count_on_tabs']) {
@@ -278,6 +293,7 @@ class KnowbaseItem extends CommonDBVisible implements ExtraVisibilityCriteria
     {
 
         if ($item->getType() == __CLASS__) {
+            /** @var KnowbaseItem $item */
             switch ($tabnum) {
                 case 1:
                     $item->showFull();
@@ -1362,11 +1378,11 @@ class KnowbaseItem extends CommonDBVisible implements ExtraVisibilityCriteria
         echo "<input type='submit' value=\"" . _sx('button', 'Search') . "\" class='btn btn-primary'>";
         echo "</table>";
         if (
-            isset($options['item_itemtype'])
-            && isset($options['item_items_id'])
+            isset($options['item_itemtype'], $options['item_items_id'])
+            && is_a($options['item_itemtype'], CommonDBTM::class, true)
         ) {
             echo "<input type='hidden' name='item_itemtype' value='" . $options['item_itemtype'] . "'>";
-            echo "<input type='hidden' name='item_items_id' value='" . $options['item_items_id'] . "'>";
+            echo "<input type='hidden' name='item_items_id' value='" . (int)$options['item_items_id'] . "'>";
         }
         Html::closeForm();
     }

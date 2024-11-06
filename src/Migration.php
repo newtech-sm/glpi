@@ -238,7 +238,7 @@ class Migration
     /**
      * Display an error
      *
-     * @param string  $msg Message to display
+     * @param string  $message Message to display
      *
      * @return void
      **/
@@ -1729,9 +1729,9 @@ class Migration
                             continue;
                         }
                         $DB->updateOrDie($table, [
-                            'field' => $new_search_opt
+                            'num' => $new_search_opt
                         ], [
-                            'field' => $old_search_opt
+                            'num' => $old_search_opt
                         ]);
                     }
                 }

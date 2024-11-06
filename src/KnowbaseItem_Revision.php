@@ -46,14 +46,17 @@ class KnowbaseItem_Revision extends CommonDBTM
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
-        if (!$item->canUpdateItem()) {
+        if (
+            !($item instanceof CommonDBTM)
+            || !$item->canUpdateItem()
+        ) {
             return '';
         }
 
         $nb = 0;
         if ($_SESSION['glpishow_count_on_tabs']) {
             $where = [];
-            if ($item->getType() == KnowbaseItem::getType()) {
+            if ($item instanceof KnowbaseItem) {
                 $where = [
                     'knowbaseitems_id' => $item->getID(),
                     'language'         => ''
@@ -221,9 +224,9 @@ class KnowbaseItem_Revision extends CommonDBTM
                      title: __('Show revision %rev').replace(/%rev/, _this.data('rev')),
                      body: `<div>
                         <h2>\${__('Subject')}</h2>
-                        <div>\${data.name}</div>
+                        <div class='text-wrap text-break'>\${data.name}</div>
                         <h2>\${__('Content')}</h2>
-                        <div>\${data.answer}</div>
+                        <div class='text-wrap text-break'>\${data.answer}</div>
                      </div>`,
                   });
                })
@@ -268,18 +271,19 @@ class KnowbaseItem_Revision extends CommonDBTM
                            </tr>
                            <tr>
                               <th>\${__('Subject')}</th>
-                              <td class='original'>\${data['old']['name']}</td>
-                              <td class='changed'>\${data['diff']['name']}</td>
-                              <td class='diff'></td>
+                              <td class='original text-wrap text-break'>\${data['old']['name']}</td>
+                              <td class='changed text-wrap text-break'>\${data['diff']['name']}</td>
+                              <td class='diff text-wrap text-break'></td>
                            </tr>
                            <tr>
                               <th>\${__('Content')}</th>
-                              <td class='original'>\${data['old']['answer']}</td>
-                              <td class='changed'>\${data['diff']['answer']}</td>
-                              <td class='diff'></td>
+                              <td class='original text-wrap text-break'>\${data['old']['answer']}</td>
+                              <td class='changed text-wrap text-break'>\${data['diff']['answer']}</td>
+                              <td class='diff text-wrap text-break'></td>
                            </tr>
                         </table>
                      </div>`,
+                     dialogclass: 'modal-xl'
                   });
 
                   $('#compare_view tr').prettyTextDiff();

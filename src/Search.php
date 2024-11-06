@@ -38,6 +38,7 @@ use Glpi\RichText\RichText;
 use Glpi\Socket;
 use Glpi\Toolbox\DataExport;
 use Glpi\Toolbox\Sanitizer;
+use Glpi\Toolbox\URL;
 
 /**
  * Search Class
@@ -256,7 +257,7 @@ class Search
         self::displayData($data);
 
         if ($data['data']['totalcount'] > 0) {
-            $target = $data['search']['target'];
+            $target = URL::sanitizeURL($data['search']['target']);
             $criteria = $data['search']['criteria'];
             array_pop($criteria);
             array_pop($criteria);
@@ -1809,6 +1810,7 @@ class Search
             }
         }
 
+        $search['target'] = URL::sanitizeURL($search['target']);
         $prehref = $search['target'] . (strpos($search['target'], "?") !== false ? "&" : "?");
         $href    = $prehref . $parameters;
 
@@ -2573,6 +2575,7 @@ class Search
         foreach ($params as $key => $val) {
             $p[$key] = $val;
         }
+        $p['target'] = URL::sanitizeURL($p['target']);
 
        // Itemtype name used in JS function names, etc
         $normalized_itemtype = strtolower(str_replace('\\', '', $itemtype));
@@ -4744,8 +4747,6 @@ JAVASCRIPT;
 
         switch ($searchtype) {
             case "notcontains":
-                $nott = !$nott;
-               //negated, use contains case
             case "contains":
                 // FIXME
                 // `field LIKE '%test%'` condition is not supposed to be relevant, and can sometimes result in SQL performances issues/warnings/errors,
@@ -4787,9 +4788,13 @@ JAVASCRIPT;
 
                     // Potential negation will be handled by the subquery operator
                     $SEARCH = self::makeTextSearch($val, false);
-                    $subquery_operator = $nott ? "NOT IN" : "IN";
+                    if ($searchtype === 'contains') {
+                        $subquery_operator = $nott ? "NOT IN" : "IN";
+                    } else {
+                        $subquery_operator = $nott ? "IN" : "NOT IN";
+                    }
                 } else {
-                    $SEARCH = self::makeTextSearch($val, $nott);
+                    $SEARCH = self::makeTextSearch($val, $searchtype === 'contains' ? $nott : !$nott);
                 }
                 break;
 
@@ -8361,6 +8366,28 @@ HTML;
                                                                   'NEWTABLE'
                                                               )
                 ];
+
+                self::$search[$itemtype][141]['table']         = 'glpi_changes';
+                self::$search[$itemtype][141]['field']         = 'id';
+                self::$search[$itemtype][141]['datatype']      = 'count';
+                self::$search[$itemtype][141]['name']          = _x('quantity', 'Number of changes');
+                self::$search[$itemtype][141]['forcegroupby']  = true;
+                self::$search[$itemtype][141]['usehaving']     = true;
+                self::$search[$itemtype][141]['massiveaction'] = false;
+                self::$search[$itemtype][141]['joinparams']    = ['beforejoin'
+                => ['table'
+                    => 'glpi_changes_items',
+                    'joinparams'
+                        => ['jointype'
+                        => 'itemtype_item'
+                        ]
+                ],
+                    'condition'
+                    => getEntitiesRestrictRequest(
+                        'AND',
+                        'NEWTABLE'
+                    )
+                ];
             }
 
             $fn_append_options = static function ($new_options) use ($itemtype) {
@@ -9045,8 +9072,10 @@ HTML;
                 break;
 
             case self::NAMES_OUTPUT:
-                header("Content-disposition: filename=glpi.txt");
-                header('Content-type: file/txt');
+                if (!defined('TU_USER')) {
+                    header("Content-disposition: filename=glpi.txt");
+                    header('Content-type: file/txt');
+                }
                 break;
 
             default:

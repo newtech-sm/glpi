@@ -102,6 +102,11 @@ class MailCollector extends CommonDBTM
         'passwd',
     ];
 
+    public $history_blacklist = [
+        'errors',
+        'last_collect_date',
+    ];
+
     public static function getTypeName($nb = 0)
     {
         return _n('Receiver', 'Receivers', $nb);
@@ -218,6 +223,7 @@ class MailCollector extends CommonDBTM
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
         if ($item->getType() == __CLASS__) {
+            /** @var MailCollector $item */
             $item->showGetMessageForm($item->getID());
         }
         return true;
@@ -692,7 +698,7 @@ class MailCollector extends CommonDBTM
      *
      * @return string|void
      **/
-    public function collect($mailgateID, $display = 0)
+    public function collect($mailgateID, $display = false)
     {
         /**
          * @var array $CFG_GLPI
@@ -1337,7 +1343,7 @@ class MailCollector extends CommonDBTM
        // Wrap content for blacklisted items
         $cleaned_count = 0;
         $itemstoclean = [];
-        foreach ($DB->request('glpi_blacklistedmailcontents') as $data) {
+        foreach ($DB->request(BlacklistedMailContent::getTable()) as $data) {
             $toclean = trim($data['content']);
             if (!empty($toclean)) {
                 $itemstoclean[] = str_replace(["\r\n", "\n", "\r"], $br_marker, $toclean);
@@ -2049,7 +2055,7 @@ class MailCollector extends CommonDBTM
         echo "<tr class='tab_bg_2'><th>Mails receivers</th></tr>\n";
         echo "<tr class='tab_bg_1'><td><pre>\n&nbsp;\n";
 
-        foreach ($DB->request('glpi_mailcollectors') as $mc) {
+        foreach ($DB->request(self::getTable()) as $mc) {
             $msg  = "Name: '" . $mc['name'] . "'";
             $msg .= " Active: " . ($mc['is_active'] ? "Yes" : "No");
             echo wordwrap($msg . "\n", $width, "\n\t\t");
@@ -2275,7 +2281,9 @@ class MailCollector extends CommonDBTM
      *
      * @see NotificationTarget::getMessageIdForEvent()
      *
-     * @return string
+     * @param string $header
+     *
+     * @return array|null
      */
     private function extractValuesFromRefHeader(string $header): ?array
     {
@@ -2455,16 +2463,25 @@ class MailCollector extends CommonDBTM
 
         $charset = $content_type->getParameter('charset');
         if ($charset !== null && strtoupper($charset) != 'UTF-8') {
+            /* mbstring functions do not handle the 'ks_c_5601-1987' &
+             * 'ks_c_5601-1989' charsets. However, these charsets are used, for
+             * example, by various versions of Outlook to send Korean characters.
+             * Use UHC (CP949) encoding instead. See, e.g.,
+             * http://lists.w3.org/Archives/Public/ietf-charsets/2001AprJun/0030.html */
+            if (in_array(strtolower($charset), ['ks_c_5601-1987', 'ks_c_5601-1989'])) {
+                $charset = 'UHC';
+            }
+
             if (in_array(strtoupper($charset), array_map('strtoupper', mb_list_encodings()))) {
                 $contents = mb_convert_encoding($contents, 'UTF-8', $charset);
             } else {
-               // Convert Windows charsets names
+                // Convert Windows charsets names
                 if (preg_match('/^WINDOWS-\d{4}$/i', $charset)) {
                     $charset = preg_replace('/^WINDOWS-(\d{4})$/i', 'CP$1', $charset);
                 }
 
-               // Try to convert using iconv with TRANSLIT, then with IGNORE.
-               // TRANSLIT may result in failure depending on system iconv implementation.
+                // Try to convert using iconv with TRANSLIT, then with IGNORE.
+                // TRANSLIT may result in failure depending on system iconv implementation.
                 if ($converted = @iconv($charset, 'UTF-8//TRANSLIT', $contents)) {
                     $contents = $converted;
                 } else if ($converted = iconv($charset, 'UTF-8//IGNORE', $contents)) {

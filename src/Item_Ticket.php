@@ -107,6 +107,8 @@ class Item_Ticket extends CommonItilObject_Item
         }
 
         $ticket->update($input);
+        $ticket_cost = new TicketCost();
+        $ticket_cost->updateTCOItem($this->fields['itemtype'], $this->fields['items_id']);
         parent::post_addItem();
     }
 
@@ -123,7 +125,8 @@ class Item_Ticket extends CommonItilObject_Item
             $input['_forcenotif'] = true;
         }
         $ticket->update($input);
-
+        $ticket_cost = new TicketCost();
+        $ticket_cost->updateTCOItem($this->fields['itemtype'], $this->fields['items_id']);
         parent::post_purgeItem();
     }
 
@@ -537,6 +540,7 @@ class Item_Ticket extends CommonItilObject_Item
             $nb = 0;
             switch ($item->getType()) {
                 case 'Ticket':
+                    /** @var Ticket $item */
                     if (
                         ($_SESSION["glpiactiveprofile"]["helpdesk_hardware"] != 0)
                         && (count($_SESSION["glpiactiveprofile"]["helpdesk_item_type"]) > 0)
@@ -582,7 +586,7 @@ class Item_Ticket extends CommonItilObject_Item
      *
      * @return void
      **/
-    public static function dropdownMyDevices($userID = 0, $entity_restrict = -1, $itemtype = 0, $items_id = 0, $options = [])
+    public static function dropdownMyDevices($userID = 0, $entity_restrict = -1, $itemtype = '', $items_id = 0, $options = [])
     {
         /**
          * @var array $CFG_GLPI
@@ -997,7 +1001,7 @@ class Item_Ticket extends CommonItilObject_Item
     /**
      * Return used items for a ticket
      *
-     * @param integer type $tickets_id
+     * @param integer $tickets_id
      *
      * @return array
      */

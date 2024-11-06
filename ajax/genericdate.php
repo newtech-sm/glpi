@@ -43,11 +43,12 @@ Html::header_nocache();
 Session::checkLoginUser();
 
 if (isset($_POST['value']) && (strcmp($_POST['value'], '0') == 0)) {
-    if ($_POST['withtime']) {
+    $withtime = filter_var($_POST['withtime'], FILTER_VALIDATE_BOOLEAN);
+    if ($withtime) {
         Html::showDateTimeField($_POST['name'], ['value' => $_POST['specificvalue']]);
     } else {
         Html::showDateField($_POST['name'], ['value' => $_POST['specificvalue']]);
     }
 } else {
-    echo "<input type='hidden' name='" . $_POST['name'] . "' value='" . $_POST['value'] . "'>";
+    echo "<input type='hidden' name='" . Html::cleanInputText($_POST['name']) . "' value='" . Html::cleanInputText($_POST['value']) . "'>";
 }

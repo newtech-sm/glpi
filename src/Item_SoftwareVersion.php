@@ -1013,7 +1013,7 @@ class Item_SoftwareVersion extends CommonDBRelation
     /**
      * Show software installed on a computer
      *
-     * @param Computer $comp         Computer object
+     * @param CommonDBTM $item
      * @param integer  $withtemplate template case of the view process
      *
      * @return void
@@ -1154,13 +1154,13 @@ class Item_SoftwareVersion extends CommonDBRelation
                         <input type='hidden' name='filters[active]' value='1'>
                     </td>
                     <td>
-                        <input type='text' class='form-control' name='filters[name]' value='" . ($filters['name'] ?? '') . "'>
+                        <input type='text' class='form-control' name='filters[name]' value='" . htmlspecialchars($filters['name'] ?? '', ENT_QUOTES) . "'>
                     </td>
                     <td>
-                        <input type='text' class='form-control' name='filters[state]' value='" . ($filters['state'] ?? '') . "'>
+                        <input type='text' class='form-control' name='filters[state]' value='" . htmlspecialchars($filters['state'] ?? '', ENT_QUOTES) . "'>
                     </td>
                     <td>
-                        <input type='text' class='form-control' name='filters[version]' value='" . ($filters['version'] ?? '') . "'>
+                        <input type='text' class='form-control' name='filters[version]' value='" . htmlspecialchars($filters['version'] ?? '', ENT_QUOTES) . "'>
                     </td>
                     <td></td>
                     <td>
@@ -1173,7 +1173,7 @@ class Item_SoftwareVersion extends CommonDBRelation
                         ) . "
                     </td>
                     <td>
-                        <input type='text' class='form-control' name='filters[arch]' value='" . ($filters['arch'] ?? '') . "'>
+                        <input type='text' class='form-control' name='filters[arch]' value='" . htmlspecialchars($filters['arch'] ?? '', ENT_QUOTES) . "'>
                     </td>
                     <td>" . Dropdown::showFromArray(
                             "filters[is_dynamic]",
@@ -1609,6 +1609,7 @@ class Item_SoftwareVersion extends CommonDBRelation
         $nb = 0;
         switch ($item->getType()) {
             case 'Software':
+                /** @var Software $item */
                 if (!$withtemplate) {
                     if ($_SESSION['glpishow_count_on_tabs']) {
                         $nb = self::countForSoftware($item->getID());
@@ -1618,6 +1619,7 @@ class Item_SoftwareVersion extends CommonDBRelation
                 break;
 
             case 'SoftwareVersion':
+                /** @var SoftwareVersion $item */
                 if (!$withtemplate) {
                     if ($_SESSION['glpishow_count_on_tabs']) {
                         $nb = self::countForVersion($item->getID());

@@ -877,7 +877,9 @@ abstract class MainAsset extends InventoryAsset
             $this->item->getType() != 'NetworkEquipment'
             && $this->item->getType() != 'Printer'
         ) {
-            $this->handlePorts();
+            if (!$this->isPartial() || count($this->ports)) {
+                $this->handlePorts();
+            }
         }
 
         if (method_exists($this, 'isWirelessController') && $this->isWirelessController()) {
@@ -901,7 +903,7 @@ abstract class MainAsset extends InventoryAsset
         $input = $this->handleInput($val, $this->item);
 
         if ($this->isNew()) {
-            // ONADD were already exececuted, and we want to skip rules that are only ONUPDATE
+            // ONADD were already executed, and we want to skip rules that are only ONUPDATE
             $input['_skip_rules'] = true;
         }
 

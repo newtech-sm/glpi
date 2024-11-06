@@ -1218,6 +1218,13 @@ abstract class API
 
             // make text search
             foreach ($search_values as $filter_field => $filter_value) {
+                if (!$DB->fieldExists($table, $filter_field)) {
+                    $this->returnError(
+                        sprintf(__('Field %s is not valid for %s item.'), $filter_field, $item->getType()),
+                        400,
+                        "ERROR_FIELD_NOT_FOUND"
+                    );
+                }
                 if (!empty($filter_value)) {
                     $search_value = Search::makeTextSearch($DB->escape($filter_value));
                     $where .= " AND (" . $DB->quoteName("$table.$filter_field") . " $search_value)";
@@ -1276,6 +1283,16 @@ abstract class API
 
                 $found[] = $data;
             }
+        } else {
+            $message = __('An error occurred during the items search.');
+            if ($_SESSION['glpi_use_mode'] === \Session::DEBUG_MODE) {
+                $message .= " " . __('For more information, check the GLPI logs.');
+            }
+            $this->returnError(
+                $message,
+                500,
+                "ERROR_UNKNOWN",
+            );
         }
 
        // get result full row counts
@@ -1734,6 +1751,25 @@ abstract class API
                 }
                 if (count($current_values) == 1) {
                     $current_values = $current_values[0];
+                }
+
+                // Undisclose sensitive fields
+                // Pass any additional field listed by the corresponding search option
+                $col_ref_table    = $col['searchopt']['table'] ?? '';
+                $col_ref_field    = $col['searchopt']['field'] ?? '';
+                $col_ref_itemtype = $col_ref_table !== '' && $col_ref_field !== ''
+                    ? \getItemTypeForTable($col['searchopt']['table'] ?? '')
+                    : null;
+                if ($col_ref_itemtype !== null && \is_a($col_ref_itemtype, CommonDBTM::class, true)) {
+                    $tmp_fields = [$col_ref_field => $current_values];
+                    if (array_key_exists('additionalfields', $col['searchopt'])) {
+                        foreach ($col['searchopt']['additionalfields'] as $field_name) {
+                            $field_value_key = 'ITEM_' . $col['itemtype'] . '_' . $col['id'] . '_' . $field_name;
+                            $tmp_fields[$field_name] = $raw[$field_value_key];
+                        }
+                    }
+                    $col_ref_itemtype::unsetUndisclosedFields($tmp_fields);
+                    $current_values = $tmp_fields[$col_ref_field] ?? null;
                 }
 
                 $clean_values[] = $current_values;
