@@ -106,9 +106,11 @@ abstract class NotificationTargetCommonITILObject extends NotificationTarget
         ));
 
         if (empty($perso_tag)) {
+			/* ntsm hack diego*/ 
             $perso_tag = 'GLPI';
+			$perso_tag = '';
         }
-        return sprintf("[$perso_tag #%07d] ", $this->obj->getField('id'));
+        return sprintf("[$perso_tag#%07d] ", $this->obj->getField('id'));
     }
 
     /**

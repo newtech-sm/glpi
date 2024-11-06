@@ -1,0 +1,116 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: YAGP\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-11 15:27+0100\n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Localazy (https://localazy.com)\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: hook.php:133
+msgid "Recategorized"
+msgstr "カテゴリー変更済み"
+
+#: hook.php:147
+msgid "Initial category"
+msgstr "初期カテゴリー"
+
+#: ajax/quicktransfer.php:80 front/transfer.form.php:70
+#, php-format
+msgid "Ticket transferred to %s"
+msgstr "チケットの転送先 : %s"
+
+#: ajax/quicktransfer.php:89 front/transfer.form.php:79
+msgid "You can close this window"
+msgstr "このウィンドウを閉じても構いません"
+
+#: inc/contractrenew.class.php:47
+msgid "Renews tacit contracts"
+msgstr "自動更新契約の内容を補正"
+
+#: inc/contractrenew.class.php:81
+#, php-format
+msgid "Renewed Contract id: %s"
+msgstr "更新した契約 ID : %s"
+
+#: inc/postshowitem.class.php:115
+msgid "Select an entity to transfer"
+msgstr "転送するエンティティを選択してください"
+
+#: inc/postshowitem.class.php:119
+msgid "Transfer to"
+msgstr "転送先"
+
+#: inc/preshowtab.class.php:48
+msgid "Current minimum validation"
+msgstr "現在の必要検証承認率"
+
+#: inc/profile.class.php:128 inc/profile.class.php:159
+msgid "See group tickets only"
+msgstr "グループチケットのみを表示"
+
+#: inc/profile.class.php:160
+msgid "You are not in any group"
+msgstr "あなたはどのグループにも属していません"
+
+#: inc/ticketsolveddate.class.php:56
+msgid "Change date"
+msgstr "日付を変更"
+
+#: inc/ticketsolveddate.class.php:57
+msgid "Number of tickets"
+msgstr "チケット数"
+
+#~ msgid "Display an input to quickly access a ticket"
+#~ msgstr "チケットにすばやくアクセスするための入力を表示します"
+
+#~ msgid "Block opening date"
+#~ msgstr "開始日編集のブロック"
+
+#~ msgid "Enable re-categorization tracking"
+#~ msgstr "カテゴリー変更の記録を有効にする"
+
+#~ msgid "Hide historical tab to post-only users"
+#~ msgstr "投稿専用ユーザーに対して履歴タブを非表示に"
+
+#~ msgid "Change ticket solved date to last task end time"
+#~ msgstr "チケットの解決日を最後のタスクの終了日時に変更"
+
+#~ msgid "Auto-closing of rejected tickets"
+#~ msgstr "拒否済みチケットの自動終了"
+
+#~ msgid "Solution types for close tickets automatically"
+#~ msgstr "チケットを自動終了する際の、解決の種類"
+
+#~ msgid "Related to tickets"
+#~ msgstr "チケット関連"
+
+#~ msgid "Enhance Private task/followup view"
+#~ msgstr "個人のタスク・回答表示を強化"
+
+#~ msgid "Replace ticket requester (mailcollector)"
+#~ msgstr "チケットの要求者を置き換え (メールコレクター)"
+
+#~ msgid "Allow anonymous requester"
+#~ msgstr "匿名の要求者を許可"
+
+#~ msgid "Tag to search"
+#~ msgstr "検索するタグ"
+
+#~ msgid "Change default minimum validation required"
+#~ msgstr "必要検証承認率の既定値を変更"
+
+#~ msgid "Minimum validation"
+#~ msgstr "必要承認率"
+
+#~ msgid "Enable quick transfer for tickets"
+#~ msgstr "チケットのクイック転送を有効にする"
+
+#~ msgid "Enable automatic transfer"
+#~ msgstr "自動転送を有効にする"
+
+#~ msgid "Transfer destination"
+#~ msgstr "転送先"

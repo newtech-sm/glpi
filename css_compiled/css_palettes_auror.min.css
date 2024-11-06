@@ -16565,8 +16565,8 @@ textarea.form-control-lg {
   box-shadow: 0 0 0 0.25rem rgba(254, 201, 92, 0.25);
 }
 .form-check-input:checked {
-  background-color: #fec95c;
-  border-color: rgba(98, 105, 118, 0.24);
+  background-color: #ccc;
+  border-color: #cdcdcd;
 }
 .form-check-input:checked[type="checkbox"] {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8.5l2.5 2.5l5.5 -5.5'/%3e%3c/svg%3e");
@@ -26750,9 +26750,9 @@ a.badge {
   animation: spinner-border 0.75s linear infinite;
 }
 .btn-primary, .btn-outline-primary, .btn-ghost-primary {
-  --tblr-btn-color: #fec95c;
-  --tblr-btn-color-interactive: #e5b553;
-  --tblr-btn-color-text: #1e293b;
+  --tblr-btn-color: #3e4148;
+  --tblr-btn-color-interactive: #3e4148;
+  --tblr-btn-color-text: #fff;
 }
 .btn-secondary, .btn-outline-secondary, .btn-ghost-secondary {
   --tblr-btn-color: #606f91;
@@ -31098,9 +31098,11 @@ body.iframed, body.in_modal {
   overflow-x: hidden;
 }
 .page .glpi-logo {
-  background: url("../pics/logos/logo-GLPI-100-white.png") no-repeat;
+  background: url("../pics/logos/logo_newtech.png") no-repeat;
   height: 55px;
-  width: 100px;
+  width: 155px;
+  background-size: contain;
+  
 }
 .page .page-body {
   margin-bottom: 0;
@@ -31176,10 +31178,10 @@ body.iframed, body.in_modal {
   width: fit-content;
 }
 .page-anonymous .glpi-logo {
-  --logo: url(../pics/logos/logo-GLPI-250-black.png);
+  --logo: url(../pics/logos/logo_newtech.png);
   content: var(--logo);
   width: 200px;
-  height: 110px;
+
 }
 table tbody:not(:has(tr)) {
   display: none;
@@ -36724,8 +36726,8 @@ input.submit, .vsubmit {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  background-color: #fec95c;
-  color: #1e293b;
+  background-color: #3e4148;
+  color: #fff;
   border: 1px solid rgba(98, 105, 118, 0.24);
   border-radius: 4px;
   font-weight: 500;
@@ -36733,14 +36735,14 @@ input.submit, .vsubmit {
   padding: 0.4375rem 1rem;
 }
 input.submit:hover, .vsubmit:hover {
-  background: #e5b553;
-  border-color: #fec95c;
+  background: #ccc;
+  border-color: #ccc;
 }
 input.submit.disabled, .vsubmit.disabled {
   cursor: not-allowed;
 }
 input.submit:focus:not([disabled]):not(.disabled), .vsubmit:focus:not([disabled]):not(.disabled) {
-  border-color: #fec95c;
+  border-color: #cdcdcd;
 }
 .form-control.warn {
   border-color: red !important;
@@ -36753,10 +36755,12 @@ input.submit:focus:not([disabled]):not(.disabled), .vsubmit:focus:not([disabled]
 .form-control.soon_expired {
   border-color: #de5d06 !important;
   background-color: rgba(255, 184, 0, 0.1) !important;
+    border-color: #de5d06 !important;
+  background-color: rgba(255, 184, 0, 0.1) !important;
 }
 .form-control.expired {
-  border-color: #d63939 !important;
-  background-color: rgba(255, 0, 0, 0.1) !important;
+  border-color: #ccc !important;
+  background-color: #ccc !important;
 }
 /*!
  * ---------------------------------------------------------------------

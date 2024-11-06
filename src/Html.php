@@ -6287,7 +6287,7 @@ HTML;
         }
         $message .= "Copyright (C) 2015-" . GLPI_YEAR . " Teclib' and contributors" .
          "</a>";
-        return $message;
+        return "<a href=\"https://newtechgroup.com/\" title=\"Newtech Group\" class=\"copyright\">Newtech Group</a>";
     }
 
     /**
