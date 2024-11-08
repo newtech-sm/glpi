@@ -1,0 +1,168 @@
+{#
+ # ---------------------------------------------------------------------
+ #
+ # GLPI - Gestionnaire Libre de Parc Informatique
+ #
+ # http://glpi-project.org
+ #
+ # @copyright 2015-2024 Teclib' and contributors.
+ # @copyright 2003-2014 by the INDEPNET Development Team.
+ # @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ #
+ # ---------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of GLPI.
+ #
+ # This program is free software: you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation, either version 3 of the License, or
+ # (at your option) any later version.
+ #
+ # This program is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ #
+ # ---------------------------------------------------------------------
+ #}
+
+{% extends 'layout/page_card_notlogged.html.twig' %}
+
+{% block content_block %}
+   <form action="{{ path('/plugins/useraccountcreator/inc/register.form.php') }}" method="post" autocomplete="off"  data-submit-once>
+      <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="row justify-content-center">
+         <div class="col-md-10">
+            <div class="card-header mb-4">
+               <h2 class="mx-auto">{{ __('Create an account') }}</h2>
+            </div>
+
+            <div class="mb-3">
+               <label class="form-label" for="name">{{ __('Email') }}</label>
+               <input 
+                  type="email" 
+                  class="form-control" 
+                  id="name" 
+                  name="name" 
+                  placeholder="" 
+                  tabindex="1" 
+                  required
+                  value="joaquin@asd.com" />
+            </div>
+
+            <div class="mb-4">
+               <label class="form-label" for="firstname">
+                  {{ __('First name') }}
+               </label>
+               <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firstname" 
+                  name="firstname" 
+                  placeholder="" 
+                  autocomplete="on" 
+                  tabindex="2" 
+                  required
+                  value="joaquin" />
+            </div>
+
+            <div class="mb-4">
+               <label class="form-label" for="realname">
+                  {{ __('Surname') }}
+               </label>
+               <input 
+                  type="text" 
+                  class="form-control" 
+                  id="realname" 
+                  name="realname" 
+                  placeholder="" 
+                  autocomplete="on" 
+                  tabindex="3" 
+                  required
+                  value="test register form" />
+            </div>
+
+            <div class="mb-4">
+               <label class="form-label" for="password">
+                  {{ __('Password') }}
+               </label>
+               <input 
+                  type="password" 
+                  class="form-control" 
+                  id="password" 
+                  name="password" 
+                  placeholder="" 
+                  autocomplete="off" 
+                  tabindex="4" 
+                  required 
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                  title="{{ __('Password validation pattern message', 'useraccountcreator') }}"
+                  value="Sarasa123$" />
+            </div>
+
+            <div class="mb-4">
+               <label class="form-label" for="password2">
+                  {{ __('Repeat') }} {{ __('Password') }}
+               </label>
+               <input 
+                  type="password" 
+                  class="form-control" 
+                  id="password2" 
+                  name="password2" 
+                  placeholder="" 
+                  autocomplete="off" 
+                  tabindex="5" 
+                  required 
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                  title="{{ __('Password validation pattern message', 'useraccountcreator') }}"
+                  value="Sarasa123$" />
+            </div>
+
+            <div class="form-footer">
+               <button type="submit" name="submit" class="btn btn-primary w-100" tabindex="6">
+                  {{ __('Create') }}
+               </button>
+            </div>
+
+            {% if redirect_error_messages|length > 0 %}
+               <hr />
+               <div class="alert alert-danger" role="alert">
+                  {{ redirect_error_messages }}
+               </div>
+            {% endif %}
+         </div>
+      </div>
+   </form>
+{% endblock %}
+
+{% block footer_block %}
+   {{ copyright_message|raw }}
+{% endblock %}
+
+{% block javascript_block %}
+<script type="text/javascript">
+   $(function () {
+      $('#login_name').focus();
+
+      const password = document.getElementById("password");
+      const confirm_password = document.getElementById("password2");
+
+      function validatePassword(){
+         if(password.value != confirm_password.value) {
+            confirm_password.setCustomValidity("Passwords do not match");
+         } else {
+            confirm_password.setCustomValidity('');
+         }
+      }
+
+      password.onchange = validatePassword;
+      confirm_password.onkeyup = validatePassword;
+   });
+</script>
+{% endblock %}

@@ -1,9 +1,10 @@
 <?php
-class DB extends DBmysql {
+class DB extends DBmysql
+{
    public $dbhost = 'localhost';
-   public $dbuser = 'carraced_glpi';
-   public $dbpassword = '8B%3B%7BXN%3Fp58pt';
-   public $dbdefault = 'carraced_glpi';
+   public $dbuser = 'root';
+   public $dbpassword = 'devnet';
+   public $dbdefault = 'glpi';
    public $use_utf8mb4 = true;
    public $allow_myisam = false;
    public $allow_datetime = false;

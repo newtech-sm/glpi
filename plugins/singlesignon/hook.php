@@ -25,7 +25,8 @@
  * ---------------------------------------------------------------------
  */
 
-function plugin_singlesignon_display_login() {
+function plugin_singlesignon_display_login()
+{
    global $CFG_GLPI;
 
    $signon_provider = new PluginSinglesignonProvider();
@@ -59,7 +60,7 @@ function plugin_singlesignon_display_login() {
       echo implode(" \n", $html);
       echo PluginSinglesignonToolbox::renderButton('#', ['name' => __('GLPI')], 'vsubmit old-login');
       echo '</div>';
-      ?>
+?>
       <style>
          #display-login .singlesignon-box span {
             display: inline-block;
@@ -84,7 +85,6 @@ function plugin_singlesignon_display_login() {
          }
 
          #boxlogin .singlesignon-box .vsubmit img {
-
             vertical-align: sub;
          }
       </style>
@@ -104,7 +104,7 @@ function plugin_singlesignon_display_login() {
                }
             });
 
-      <?php if (version_compare(GLPI_VERSION, '10', '>=')) : ?>
+            <?php if (version_compare(GLPI_VERSION, '10', '>=')) : ?>
                var $boxButtons = $('.singlesignon-box');
 
                $boxButtons.parent().hide();
@@ -116,6 +116,7 @@ function plugin_singlesignon_display_login() {
 
                var $row = $boxButtons.closest('.row');
                var $boxLogin = $row.find('div:eq(0)');
+               var $boxLoginSidebar = $boxLogin.nextAll('div:first');
 
                $boxButtons.addClass('col-md-5 text-center');
                $boxButtons.prependTo($row);
@@ -124,6 +125,7 @@ function plugin_singlesignon_display_login() {
                $boxButtons.find('span a').addClass("col-md-12");
 
                $boxLogin.hide();
+               $row.find('div:has(> div.rich_text_container)').hide();
 
                $(document).on("click", ".singlesignon.old-login", function(e) {
                   e.preventDefault();
@@ -131,6 +133,7 @@ function plugin_singlesignon_display_login() {
                      $boxLogin.slideDown(function() {
                         $boxLogin.find(':input:eq(0)').focus();
                      });
+                     $boxLoginSidebar.slideDown();
                   });
                });
 
@@ -146,6 +149,7 @@ function plugin_singlesignon_display_login() {
                   $boxLogin.slideUp(function() {
                      $boxButtons.slideDown();
                   });
+                  $boxLoginSidebar.slideUp();
                });
 
             <?php else : ?>
@@ -188,11 +192,12 @@ function plugin_singlesignon_display_login() {
             <?php endif; ?>
          });
       </script>
-      <?php
+<?php
    }
 }
 
-function plugin_singlesignon_install() {
+function plugin_singlesignon_install()
+{
    /* @var $DB DB */
    global $DB;
 
@@ -316,7 +321,8 @@ function plugin_singlesignon_install() {
    return true;
 }
 
-function plugin_singlesignon_uninstall() {
+function plugin_singlesignon_uninstall()
+{
    global $DB;
 
    $config = new Config();
